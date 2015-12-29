@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-<title>Bootstrap 101 Template</title>
+<title>Warhorn Schedules</title>
 
 <!-- Bootstrap -->
 <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -18,63 +18,76 @@
     <![endif]-->
 </head>
 <body>
-  <h1>Hello, world!</h1>
-  <label for="inFile">Select the CSV file from Warhorn to process</label>
-  <input type="file" id="inFile" name="inFile" />
-  <div id="list"></div>
-  <div id="generatedTable"></div>
-  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-  <!-- Include all compiled plugins (below), or include individual files as needed -->
-  <script src="js/bootstrap.min.js"></script>
-  <script src="js/papaparse.min.js"></script>
+	<h1>Hello, world!</h1>
+	<label for="inFile">Select the CSV file from Warhorn to process</label>
+	<input type="file" id="inFile" name="inFile" />
+	<div id="list"></div>
+	<div id="generatedTable"></div>
+	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+	<script
+		src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<!-- Include all compiled plugins (below), or include individual files as needed -->
+	<script src="js/bootstrap.min.js"></script>
 
-  <script>
-      $().ready(function() {
-        $('h1').val('Testing...');
-        $('#inFile').bind('change', handleFileSelect);
-      });
+	<script>
+		$().ready(function() {
+			$('h1').val('Testing...');
+			$('#inFile').bind('change', handleFileSelect);
+		});
 
-      function handleFileSelect(evt) {
-        var files = evt.target.files; // FileList object
-        var file = files[0];
-        console.log("Found file: [" + file.name + "] to process");
+		function handleFileSelect(evt) {
+			var files = evt.target.files; // FileList object
+			var file = files[0];
+			console.log("Found file: [" + file.name + "] to process");
 
-        // read the file metadata
-        var output = ''
-        output += '<span style="font-weight:bold;">' + escape(file.name) + '</span><br />\n';
-        output += ' - FileType: ' + (file.type || 'n/a') + '<br />\n';
-        output += ' - FileSize: ' + file.size + ' bytes<br />\n';
-        output += ' - LastModified: ' + (file.lastModifiedDate ? file.lastModifiedDate.toLocaleDateString() : 'n/a') + '<br />\n';
+			// read the file metadata
+			var output = ''
+			output += '<span style="font-weight:bold;">' + escape(file.name)
+					+ '</span><br />\n';
+			output += ' - FileType: ' + (file.type || 'n/a') + '<br />\n';
+			output += ' - FileSize: ' + file.size + ' bytes<br />\n';
+			output += ' - LastModified: '
+					+ (file.lastModifiedDate ? file.lastModifiedDate
+							.toLocaleDateString() : 'n/a') + '<br />\n';
 
-        // read the file contents
-        printTable(file);
+			// read the file contents
+			var reader = new FileReader();
 
-        // post the results
-        $('#list').append(output);
-      };
+			reader.onload = function(evt) {
+				var fullSessionInfo = JSON.parse(evt.target.result);
+				console.log(fullSessionInfo);
+				var slot;
+				var session;
+				for (slot in fullSessionInfo.slots) {
+					console.log(fullSessionInfo.slots[slot]);
+					printSlot(fullSessionInfo.slots[slot]);
+				}
+			};
+			reader.readAsText(file);
+			$('#list').append(output);
+		};
 
-      function printTable(file) {
-        var html = "<table>"
-        Papa.parse(file, {
-          header : true,
-//          step : function(row) {
-//            console.log("Row:", row.data);
-//            html += '<tr>\r\n';
-//            for ( var item in data[row]) {
-//              html += '<td>' + data[row][item] + '</td>\r\n';
-//            }
-//            html += '</tr>\r\n';
-//          },
-          complete : function(row) {
-        	console.log(row);
-            console.log("All done!");
-          }
-        });
-
-        html += "</table>"
-        $('#generatedTable').html(html);
-      };
-    </script>
+		function printSlot(slot) {
+			console.log("Processing slot: " + slot.name);
+			for ( var session in slot.sessions) {
+				var sesData = slot.sessions[session];
+				console.log(sesData);
+				var gmList = [];
+				for ( var gm in sesData.scenario.gms) {
+					gmList.push(sesData.scenario.gms[gm].name);
+				}
+				var html = "<table class='scenario'>";
+				html += "<tr><th>" + sesData.scenario.name + "<th></tr>";
+				html += "<tr><th>" + slot.name + "</th></tr>";
+				html += "<tr><td>" + gmList.join(", ") + "</td></tr>";
+				for (var i = 1; i <= sesData.scenario.table_size; i++) {
+					html += "<tr><td>" + i + "</td><td>" + "player name"
+							+ "</td></tr>";
+				}
+				html += "</table><br/><br/>"
+				$('#generatedTable').append(html);
+			}
+		};
+	</script>
 </body>
 </html>
