@@ -9,6 +9,7 @@
 
 <!-- Bootstrap -->
 <link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="css/custom.css" rel="stylesheet">
 
 <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
 <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -18,10 +19,9 @@
     <![endif]-->
 </head>
 <body>
-  <h1>Hello, world!</h1>
-  <label for="inFile">Select the CSV file from Warhorn to process</label>
-  <input type="file" id="inFile" name="inFile" />
-  <div id="list"></div>
+  <h1 class='file-done'>FORGE's Warhorn -> Printable Sign-up Sheet Generator</h1>
+  <label class='file-done' for="inFile">Select the JSON file from Warhorn to process</label>
+  <input class='file-done' type="file" id="inFile" name="inFile" />
   <div id="generatedTable"></div>
   <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
@@ -37,7 +37,6 @@
       function handleFileSelect(evt) {
         var files = evt.target.files; // FileList object
         var file = files[0];
-        console.log("Found file: [" + file.name + "] to process");
 
         // read the file metadata
         var output = ''
@@ -51,64 +50,74 @@
 
         reader.onload = function(evt) {
           var fullSessionInfo = JSON.parse(evt.target.result);
-          console.log(fullSessionInfo);
           var slot;
           var session;
           for (slot in fullSessionInfo.slots) {
-            console.log(fullSessionInfo.slots[slot]);
             printSlot(fullSessionInfo.slots[slot]);
           }
         };
         reader.readAsText(file);
-        $('#list').append(output);
+        $('.file-done').hide();
       };
 
       function imageSelect(campaign) {
         if (campaign.match("Pathfinder Society Adventure Card Guild")) {
-          return "<tr><td colspan='2'><img src='img/PathfinderSocietyAdventureCardGuild.png'/></td></tr>";
+          return "<tr><td colspan='3'><img src='img/PathfinderSocietyAdventureCardGuild.png'/></td></tr>";
         } else if (campaign.match("Shadowrun Missions")) {
-          return "<tr><td colspan='2'><img src='img/PathfinderSocietyAdventureCardGuild.png'/></td></tr>";
+          return "<tr><td colspan='3'><img src='img/PathfinderSocietyAdventureCardGuild.png'/></td></tr>";
         } else if (campaign.match("Pathfinder Society.*")) {
-          return "<tr><td colspan='2'><img src='img/PathfinderSociety.png'/><td></tr>";
+          return "<tr><td colspan='3'><img src='img/PathfinderSociety.png'/><td></tr>";
         }
-        return "<tr><th colspan='2'>" + campaign + "</th></tr>";
+        return "<tr><th colspan='3' class='unknown-campaign'>" + campaign + "</th></tr>";
       }
 
+      function addGmList(gmList) {
+        var gmHtml = "<tr><td colspan='3' class='gm'>";
+        gmHtml += (gmList.length > 1) ? "Judges" : "Judge";
+        gmHtml += "</td></tr>";
+        gmHtml += "<tr><td colspan='3'>" + gmList.join(", ") + "</td></tr>";
+        return gmHtml;
+      }
       function addFooter() {
-        return "<tfoot><tr><td colspan='2'>Presented by</td></tr><tr><td><img src='img/FORGE.png'></td></tr></tfoot>";
+        return "<tfoot><tr><td colspan='3'>Presented by</td></tr><tr><td colspan='3'><img src='img/FORGE.png'></td></tr></tfoot>";
       }
 
-      var emptyRow = "<tr><td>&nbsp</td></tr>";
+      function addAlternates() {
+        return "<tr><td colspan='3' class='player-header'>Alternates</td></tr>"
+            + "<tr><td class='player-name'>1) </td><td class='spacer'>&nbsp;</td><td class='player-name'>2) </td></tr>"
+            + "<tr><td class='player-name'>3) </td><td class='spacer'>&nbsp;</td><td class='player-name'>4) </td></tr>";
+      }
+
+      var emptyRow = "<tr><td colspan='3'>&nbsp</td></tr>";
 
       function printSlot(slot) {
-        console.log("Processing slot: " + slot.name);
         for ( var session in slot.sessions) {
           var sesData = slot.sessions[session];
-          //console.log(sesData);
           var gmList = [];
           for ( var gm in sesData.gms) {
             gmList.push(sesData.gms[gm].name);
           }
-          var html = "<table class='scenario'>";
+          var html = "<table>";
           var isPathfinders = null;
-          if (sesData.scenario.campaign != null) {
+          if (null != sesData.scenario.campaign) {
             html += imageSelect(sesData.scenario.campaign);
           }
-          html += "<tr><th colspan='2'>" + sesData.scenario.name + "<th></tr>";
-          html += "<tr><th colspan='2'>" + slot.name + "</th></tr>" + emptyRow;
+
+          html += "<tr><th colspan='3' class='scenario-meta-data'>" + sesData.scenario.name + "<th></tr>";
+          html += "<tr><th colspan='3' class='scenario-meta-data'>" + slot.name + "</th></tr>";
           if (null != sesData.scenario.min_level) {
-            html += "<tr><td colspan='2'>For Characters Level " + sesData.scenario.min_level + " - " + sesData.scenario.max_level
-                + "</td><td>" + emptyRow;
+            html += "<tr><td colspan='3' class='scenario-meta-data'>For Characters Level " + sesData.scenario.min_level + " - "
+                + sesData.scenario.max_level + "</td><td>";
           }
-          html += "<tr></tr><tr><td colspan='2'>" + sesData.scenario.blurb + "</td></tr>";
+
+          html += "<tr></tr><tr><td colspan='3' class='blurb'>" + sesData.scenario.blurb + "</td></tr>";
           if (sesData.scenario.campaign && null != sesData.scenario.campaign.match("Pathfinder Society.*")) {
-            html += emptyRow + "<tr><td colspan='2'>Pregen Characters will be available</td></tr>" + emptyRow;
+            html += "<tr><td colspan='3'>Pregen Characters will be available</td></tr>";
           }
-          html += "<tr><td colspan='2' class='gm'>";
-          html += (gmList.length > 1) ? "Judges" : "Judge";
-          html += "</td></tr>";
-          html += "<tr><td colspan='2'>" + gmList.join(", ") + "</td></tr>";
-          html += "<tr><td colspan='2' class='player-header'>Players</td>" + emptyRow;
+
+          html += addGmList(gmList);
+
+          html += "<tr><td colspan='3' class='player-header'>Players</td></tr>";
           for (var i = 0; i < sesData.table_size; i++) {
             html += "<td class='player-name'>" + (i + 1) + ") ";
 
@@ -117,12 +126,12 @@
             } else {
               html += " ";
             }
-            html += (0 == i % 2) ? "</td>" : "</td></tr>";
+            html += (0 == i % 2) ? "</td><td class='spacer'>&nbsp;</td>" : "</td></tr>";
           }
           html += "</tr>"; // close out the 2 column player layout
-          html += emptyRow + "<tr><td colspan='2' class='player-header'>Alternates</td></tr>";
-          html += "<tr><td class='player-name'>1) </td><td class='player-name'>2) </td></tr>";
-          html += "<tr><td class='player-name'>3) </td><td class='player-name'>4) </td></tr>";
+
+          html += addAlternates();
+          html += emptyRow;
           html += addFooter();
           html += "</table><br/><br/>"
           $('#generatedTable').append(html);
