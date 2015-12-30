@@ -1,0 +1,78 @@
+table {
+  width: 90%;
+  margin-left: 5%;
+  margin-right: 5%;
+}
+
+img {
+  height: auto;
+  max-width: 70%;
+}
+
+td {
+  text-align: center;
+}
+
+tfoot img {
+  height: 100px;
+  width: 350px
+}
+
+.blurb {
+  text-align: justify;
+  font-size: .85em;
+}
+
+.unknown-campaign {
+  text-align: center;
+  font-size: 2.5em;
+  font-weight: bold;
+}
+
+.scenario-meta-data {
+  font-size: 1.1em;
+  font-weight: bold;
+  text-align: center;
+  line-height: 1.5em;
+}
+
+.gm {
+  font-size: 1.2em;
+  font-weight: bold;
+  line-height: 1.4em;
+}
+
+.player-header {
+  font-size: 1.4em;
+  font-weight: bold;
+  line-height: 1.8em;
+}
+
+.player-name {
+  width: 49%;
+  text-align: left;
+  border-bottom: solid;
+  line-height: 2.5em;
+}
+
+.spacer {
+  width: 2%;
+  border-bottom: hidden;
+  text-align : left;
+  line-height: 2.5em;
+  text-align: left;
+}
+
+@media print {
+  img {
+    height: 1.5in;
+    width: auto;
+  }
+  table {
+    page-break-after: always;
+  }
+  tfoot img {
+    height: .5in;
+    width: auto;
+  }
+}
