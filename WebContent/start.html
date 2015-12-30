@@ -93,48 +93,51 @@
       function printSlot(slot) {
         for ( var session in slot.sessions) {
           var sesData = slot.sessions[session];
-          var gmList = [];
-          for ( var gm in sesData.gms) {
-            gmList.push(sesData.gms[gm].name);
-          }
-          var html = "<table>";
-          var isPathfinders = null;
-          if (null != sesData.scenario.campaign) {
-            html += imageSelect(sesData.scenario.campaign);
-          }
-
-          html += "<tr><th colspan='3' class='scenario-meta-data'>" + sesData.scenario.name + "<th></tr>";
-          html += "<tr><th colspan='3' class='scenario-meta-data'>" + slot.name + "</th></tr>";
-          if (null != sesData.scenario.min_level) {
-            html += "<tr><td colspan='3' class='scenario-meta-data'>For Characters Level " + sesData.scenario.min_level + " - "
-                + sesData.scenario.max_level + "</td><td>";
-          }
-
-          html += "<tr></tr><tr><td colspan='3' class='blurb'>" + sesData.scenario.blurb + "</td></tr>";
-          if (sesData.scenario.campaign && null != sesData.scenario.campaign.match("Pathfinder Society.*")) {
-            html += "<tr><td colspan='3'>Pregen Characters will be available</td></tr>";
-          }
-
-          html += addGmList(gmList);
-
-          html += "<tr><td colspan='3' class='player-header'>Players</td></tr>";
-          for (var i = 0; i < sesData.table_size; i++) {
-            html += "<td class='player-name'>" + (i + 1) + ") ";
-
-            if (sesData.players[i] && sesData.players[i].name) {
-              html += sesData.players[i].name;
-            } else {
-              html += " ";
+          for (var tables = 0; tables < sesData.table_count; tables++) {
+            var gmList = [];
+            for ( var gm in sesData.gms) {
+              gmList.push(sesData.gms[gm].name);
             }
-            html += (0 == i % 2) ? "</td><td class='spacer'>&nbsp;</td>" : "</td></tr>";
-          }
-          html += "</tr>"; // close out the 2 column player layout
+            var html = "<table>";
+            var isPathfinders = null;
+            if (null != sesData.scenario.campaign) {
+              html += imageSelect(sesData.scenario.campaign);
+            }
 
-          html += addAlternates();
-          html += emptyRow;
-          html += addFooter();
-          html += "</table><br/><br/>"
-          $('#generatedTable').append(html);
+            html += "<tr><th colspan='3' class='scenario-meta-data'>" + sesData.scenario.name + "<th></tr>";
+            html += "<tr><th colspan='3' class='scenario-meta-data'>" + slot.name + "</th></tr>";
+            if (null != sesData.scenario.min_level) {
+              html += "<tr><td colspan='3' class='scenario-meta-data'>For Characters Level " + sesData.scenario.min_level + " - "
+                  + sesData.scenario.max_level + "</td><td>";
+            }
+
+            html += "<tr></tr><tr><td colspan='3' class='blurb'>" + sesData.scenario.blurb + "</td></tr>";
+            if (sesData.scenario.campaign && null != sesData.scenario.campaign.match("Pathfinder Society.*")) {
+              html += "<tr><td colspan='3'>Pregen Characters will be available</td></tr>";
+            }
+
+            html += addGmList(gmList);
+
+            html += "<tr><td colspan='3' class='player-header'>Players</td></tr>";
+            for (var i = 0; i < sesData.table_size; i++) {
+              html += "<td class='player-name'>" + (i + 1) + ") ";
+
+              var player = i + sesData.table_size * tables;
+              if (sesData.players[player] && sesData.players[player].name) {
+                html += sesData.players[player].name;
+              } else {
+                html += " ";
+              }
+              html += (0 == i % 2) ? "</td><td class='spacer'>&nbsp;</td>" : "</td></tr>";
+            }
+            html += "</tr>"; // close out the 2 column player layout
+
+            html += addAlternates();
+            html += emptyRow;
+            html += addFooter();
+            html += "</table><br/><br/>"
+            $('#generatedTable').append(html);
+          }
         }
       };
     </script>
