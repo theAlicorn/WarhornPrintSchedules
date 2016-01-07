@@ -64,9 +64,13 @@
         if (campaign.match("Pathfinder Society Adventure Card Guild")) {
           return "<tr><td colspan='3'><img src='img/PathfinderSocietyAdventureCardGuild.png'/></td></tr>";
         } else if (campaign.match("Shadowrun Missions")) {
-          return "<tr><td colspan='3'><img src='img/PathfinderSocietyAdventureCardGuild.png'/></td></tr>";
+          return "<tr><td colspan='3'><img src='img/Shadowrun_5th_Ed_Missions_Logo.jpg'/></td></tr>";
+        } else if (campaign.match("nWoD:.*")) {
+          return "<tr><td colspan='3'><img src='img/World_of_Darkness_Logo.png'/><td></tr>";
         } else if (campaign.match("Pathfinder Society.*")) {
           return "<tr><td colspan='3'><img src='img/PathfinderSociety.png'/><td></tr>";
+        } else if (campaign.match("D.*D Adventurers League")) {
+          return "<tr><td colspan='3'><img src='img/DNDRoD_ENCbnnr_728x90.jpg'/><td></tr>";
         }
         return "<tr><th colspan='3' class='unknown-campaign'>" + campaign + "</th></tr>";
       }
@@ -102,6 +106,8 @@
             var isPathfinders = null;
             if (null != sesData.scenario.campaign) {
               html += imageSelect(sesData.scenario.campaign);
+            } else {
+              html += imageSelect(sesData.scenario.name);
             }
 
             html += "<tr><th colspan='3' class='scenario-meta-data'>" + sesData.scenario.name + "<th></tr>";
